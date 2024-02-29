@@ -3,8 +3,7 @@ from tkinter import Label
 from tkinter import filedialog
 from PIL import Image,ImageTk
 
-
-
+## Function for Uploading Images
 def imageUploader():
     fileTypes = [("Image Files", "*.png;*.jpg;*.jpeg")]
     path = tk.filedialog.askopenfilename(filetypes = fileTypes)
@@ -12,7 +11,7 @@ def imageUploader():
     if len(path):
         img = Image.open(path)
         print(path)
-        img = img.resize((200,200))
+        img = img.resize((1280,960))
         pic = ImageTk.PhotoImage(img)
 
         app.geometry("960x720")
