@@ -3,21 +3,22 @@ from tkinter import Label
 from tkinter import filedialog
 from PIL import Image,ImageTk
 
-
-
+## Function for Uploading Images
 def imageUploader():
     fileTypes = [("Image Files", "*.png;*.jpg;*.jpeg")]
     path = tk.filedialog.askopenfilename(filetypes = fileTypes)
 
     if len(path):
         img = Image.open(path)
-        print(path)
-        img = img.resize((200,200))
+        ## Automatically sizes the dimensions of the image when uploading sono scaling issues
+        width,height = img.size
+        img = img.resize((width,height))
         pic = ImageTk.PhotoImage(img)
 
-        app.geometry("960x720")
+        app.geometry("1280x960")
         label.config(image=pic)
         label.image = pic
+        label.place(x=50, y=50)
             
     else:
         print("No file chose. Please select a file.")
@@ -26,12 +27,8 @@ if __name__ == "__main__":
 
     app = tk.Tk()
     app.title("LBCC ROV Photo Software")
-    app.geometry("960x720")
-
-    img=ImageTk.PhotoImage(file="vikingLogo.jpeg")
-    imgLabel = Label(app, image=img)
-    imgLabel.place(x=0,  y=0)
-
+    app.geometry("1280x960")
+    app.configure(bg="#333333")
     
     app.option_add("*Label*Background","white")
     app.option_add("*Button*Background","lightgreen")
