@@ -25,7 +25,22 @@ def imageUploader():
         print("No file chose. Please select a file.")
 
    
+    # # Function for drawing line between two points
+    # click_num = 0
+    # def drawLine(event):
+    #     global click_num
+    #     global x1, y1
+    #     global x2, y2
 
+    #     if click_num==0:
+    #         x1=event.x
+    #         y1=event.y
+    #         click_num=1
+    #     else:
+    #         x2=event.x
+    #         y2=event.y   
+    # app.create_line(x1,y1,x2,y2, fill="green", width=5)  
+    # canvas.bind('<Button-1>', drawLine)
 
 if __name__ == "__main__":
 
@@ -40,8 +55,8 @@ if __name__ == "__main__":
     uploadButton = tk.Button(app, text="Locate Image", command=imageUploader)
     uploadButton.pack(side=tk.BOTTOM)
 
-    #drawButton =tk.Button(app, text="Mark Points", command=draw_line)
-    #drawButton.pack(side=tk.BOTTOM)
+    # drawButton =tk.Button(app, text="Mark Points", command=drawLine)
+    # drawButton.pack(side=tk.BOTTOM)
 
 
 
@@ -49,21 +64,8 @@ if __name__ == "__main__":
     canvas.pack()
     click_num=0
 
-    ## Function for drawing line between two points
-    # def draw_line(event):
-    #     global click_num
-    #     global x1, y1
-    #     global x2, y2
 
-    # if click_num==0:
-    #     x1=event.x
-    #     y1=event.y
-    #     click_num=1
-    # else:
-    #     x2=event.x
-    #     y2=event.y   
-    # app.create_line(x1,y1,x2,y2, fill="green", width=5)  
-    #canvas.bind('<Button-1>', draw_line)
+
     def paint( event ):
         x1, y1 = ( event.x - 1 ), ( event.y - 1 )
         x2, y2 = ( event.x + 1 ), ( event.y + 1 )
