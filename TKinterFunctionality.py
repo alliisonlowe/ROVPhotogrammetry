@@ -99,6 +99,7 @@ class App(tk.Tk):
 
 
     def set_conversionx(self):
+        length_conversion = self.pixel_length
         user_input_cm = None
         while user_input_cm is None:
             user_input_cm = float(input("Enter the length in centimeters: "))
@@ -107,20 +108,35 @@ class App(tk.Tk):
             else:
                 continue
              
-        self.canvas.unbind("<Button-1>")
         self.canvas.bind("<Button-1>", self.on_click)
         # Get user input for length in centimeters
         # Calculate the ratio of pixels per centimeter
-        self.ratioLength = self.pixel_length / user_input_cm
+        self.ratioLength = length_conversion / user_input_cm
         print(self.ratioLength)
+        self.canvas.unbind("<Button-1>")
 
-        # Display the ratio on the side
-        self.canvas.create_text(10, 10, text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+    def set_conversiony(self):
+        height_conversion = self.pixel_length
+        user_input_cm = None
+        while user_input_cm is None:
+            user_input_cm = float(input("Enter the length in centimeters: "))
+            if user_input_cm is float:
+                break
+            else:
+                continue
+            
+        self.canvas.bind("<Button-1>", self.on_click)
+        # Get user input for length in centimeters
+        # Calculate the ratio of pixels per centimeter
+        self.ratioWidth = height_conversion / user_input_cm
+        print(self.ratioWidth)
+        self.canvas.unbind("<Button-1>")
         
 
     def pixel_to_cm(self):
         print("THIS IS MY CONVERSION BUTTON")
         #self.ratio_x = pixels_x/cm_x
+        
         #self.ratio_y = pixels_y/cm_y
 
         #button to start conversion if measured_x and measured y is taken
