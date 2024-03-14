@@ -1,44 +1,45 @@
 import tkinter as tk
-from tkinter import Label
+from tkinter import *
 from tkinter import filedialog
-from PIL import Image,ImageTk
+from tkinter import messagebox
+from PIL import Image, ImageTk
 
-## Function for Uploading Images
-def imageUploader():
-    fileTypes = [("Image Files", "*.png;*.jpg;*.jpeg")]
-    path = tk.filedialog.askopenfilename(filetypes = fileTypes)
+class App(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+        # Application Setup
+        self.title("LBCC Photogrammetry Software")
+        self.geometry("1280x960")
+        self.configure(bg="#333333")
 
-    if len(path):
-        img = Image.open(path)
-        ## Automatically sizes the dimensions of the image when uploading sono scaling issues
-        width,height = img.size
-        img = img.resize((width,height))
-        pic = ImageTk.PhotoImage(img)
+        # Create and add the label to display the image
+        self.width, self.height = 1280, 960
+        self.canvas = tk.Canvas(self, width=self.width, height=self.height)
+        self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        app.geometry("1280x960")
-        label.config(image=pic)
-        label.image = pic
-        label.place(x=50, y=50)
-            
-    else:
-        print("No file chose. Please select a file.")
+        # Create and add the button to upload the image
+        self.upload_button = tk.Button(self, text="Locate Image", command=self.image_uploader)
+        self.upload_button.pack(side=tk.BOTTOM, pady=20)
+
+    def image_uploader(self):
+        file_types = [("Image Files", "*.png;*.jpg;*.jpeg")]
+        path = filedialog.askopenfilename(filetypes=file_types)
+
+        if len(path):
+            self.img = Image.open(path)
+            self.width, self.height = self.img.size
+            self.img = self.img.resize((self.width, self.height))
+            self.pic = ImageTk.PhotoImage(self.img)
+
+            self.canvas.delete("image")
+            self.canvas.create_image(0, 0, image=self.pic, anchor="nw", tag="image")
+            self.canvas.config(width=self.width, height=self.height)
+
+        # In event of no image selected then an error prompt is displayed
+        else:
+            messagebox.showerror("Error", "No file was selected. Please select a file.")
 
 if __name__ == "__main__":
-
-    app = tk.Tk()
-    app.title("LBCC ROV Photo Software")
-    app.geometry("1280x960")
-    app.configure(bg="#333333")
-    
-    app.option_add("*Label*Background","white")
-    app.option_add("*Button*Background","lightgreen")
-
-    label = tk.Label(app)
-    label.pack(pady=10)
-
-    uploadButton = tk.Button(app, text="Locate Image", command=imageUploader)
-    uploadButton.pack(side=tk.BOTTOM,pady=20)
-
+    app = App()
     app.mainloop()
-
 
