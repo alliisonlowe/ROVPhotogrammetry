@@ -23,13 +23,20 @@ class App(tk.Tk):
         self.upload_button = tk.Button(self, text="Locate Image", command=self.image_uploader)
         self.upload_button.grid(row=1, column=0, pady=20)
 
+        # Create and add the button to find pixel size of line
+        self.set_button = tk.Button(self, text="Set Line", command=self.find_pixel)
+        self.set_button.grid(row=0, column=1, pady=20, padx=10)
+
         # Create and add the button to set scale for conversion
-        self.scale_button = tk.Button(self, text="Set Scale", command=self.set_conversionx)
-        self.scale_button.grid(row=0, column=1, pady=20, padx=10)
+        self.scale_button = tk.Button(self, text="Create Scale", command=self.set_conversionx)
+        self.scale_button.grid(row=1, column=1, pady=30, padx=10)
 
         # Create and add the button to measure coral reef in pixels to convert to cm
         self.convert_button = tk.Button(self, text="Measure Coral Reef", command=self.pixel_to_cm)
-        self.convert_button.grid(row=1, column=1, pady=30, padx=10)
+        self.convert_button.grid(row=2, column=1, pady=40, padx=10)
+
+        # Create ratio text display on the top left corner
+        self.ratio_label = tk.Label(self, text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
 
         # Add a row and column configuration for the grid
         self.rowconfigure(0, weight=1)
@@ -96,27 +103,31 @@ class App(tk.Tk):
 
             pixel_length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
             return pixel_length
+            
 
 
-    def set_conversionx(self):
-        user_input_cm = None
-        while user_input_cm is None:
-            user_input_cm = float(input("Enter the length in centimeters: "))
-            if user_input_cm is float:
+    def find_pixel(self):
+        self.user_input_cm = None
+        while self.user_input_cm is None:
+            self.user_input_cm = float(input("Enter the length in centimeters: "))
+            if self.user_input_cm is float:
                 break
             else:
                 continue
-             
+         
         self.canvas.unbind("<Button-1>")
         self.canvas.bind("<Button-1>", self.on_click)
-        # Get user input for length in centimeters
+    
+        
+    def set_conversionx(self):
+        print("Confirmed line for ratio of pixels per centimeter")
         # Calculate the ratio of pixels per centimeter
-        self.ratioLength = self.pixel_length / user_input_cm
-        print(self.ratioLength)
+        self.ratioLength = self.pixel_length / self.user_input_cm
+        print(f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        
 
         # Display the ratio on the side
-        self.canvas.create_text(10, 10, text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
-        
+        self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
 
     def pixel_to_cm(self):
         print("THIS IS MY CONVERSION BUTTON")
