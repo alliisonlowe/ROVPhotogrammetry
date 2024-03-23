@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import math
+
 class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -28,7 +28,7 @@ class App(tk.Tk):
         self.set_button.grid(row=0, column=1, pady=20, padx=10)
 
         # Create and add the button to set scale for conversion
-        self.scale_button = tk.Button(self, text="Create Scale", command=self.set_conversionx)
+        self.scale_button = tk.Button(self, text="Create Scale", command=self.set_conversion)
         self.scale_button.grid(row=1, column=1, pady=30, padx=10)
 
         # Create and add the button to measure coral reef in pixels to convert to cm
@@ -37,15 +37,19 @@ class App(tk.Tk):
 
         # Create ratio text display on the top left corner
         self.ratio_label = tk.Label(self, text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        self.ratio_label.grid(row=0, column=2, padx=10, pady=20)
+
+        # Entry widget for user input of length in centimeters
+        self.cm_entry = tk.Entry(self)
+        self.cm_entry.grid(row=1, column=2, padx=10, pady=20)
 
         # Add a row and column configuration for the grid
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        #Creating Points for Drawing a line
+        # Creating Points for Drawing a line
         self.points = []
         self.canvas.bind("<Button-1>", self.on_click_disabled)
-
 
     def image_uploader(self):
         file_types = [("Image Files", "*.png;*.jpg;*.jpeg")]
@@ -53,30 +57,35 @@ class App(tk.Tk):
 
         if len(path):
             self.img = Image.open(path)
-            self.width, self.height = self.img.size
-            self.width = self.width *3
-            self.height = self.height*3
-            self.img = self.img.resize((self.width, self.height))
+
+            # Define maximum width and height for display
+            max_width = 1200
+            max_height = 600
+
+            # Calculate scaling factor based on maximum dimensions
+            width_ratio = max_width / self.img.width
+            height_ratio = max_height / self.img.height
+            scaling_factor = min(width_ratio, height_ratio)
+
+            # Resize the image
+            new_width = int(self.img.width * scaling_factor)
+            new_height = int(self.img.height * scaling_factor)
+            self.img = self.img.resize((new_width, new_height))
             self.pic = ImageTk.PhotoImage(self.img)
 
+            # Clear previous image, if any
             self.canvas.delete("image")
+
+            # Display the resized image on the canvas
             self.canvas.create_image(0, 0, image=self.pic, anchor="nw", tag="image")
-            self.canvas.config(width=self.width, height=self.height)
+            self.canvas.config(width=new_width, height=new_height)
 
-
-            # Update the window size to match the canvas size
-            self.geometry(f"{self.width}x{self.height}")
-
-        # In event of no image selected then an error prompt is displayed
-        else:
-            messagebox.showerror("Error", "No file was selected. Please select a file.")
-    
     def on_click_disabled(self, event):
         pass
-    
+
     def on_click(self, event):
         self.points.append((event.x, event.y))
-        
+
         if len(self.points) == 2:
             x1, y1 = self.points[0]
             x2, y2 = self.points[1]
@@ -88,55 +97,25 @@ class App(tk.Tk):
             self.points = []
 
     def calculate_pixel_length(self, x1, y1, x2, y2):
-            print("Before Swapping, x1: ", x1, "x2: ", x2, "y1: ", y1, "y2: ", y2)
-            if x1 > x2:
-                temp = x1
-                x1 = x2
-                x2 = temp
-            elif y1 > y2:
-                temp = y1
-                y1 =y2
-                y2=temp
-            else:
-                pass
-            print("After Swapping, x1: ", x1, "x2: ", x2, "y1: ", y1, "y2: ", y2)
-
-            pixel_length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-            return pixel_length
-            
-
+        pixel_length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        return pixel_length
 
     def find_pixel(self):
-        self.user_input_cm = None
-        while self.user_input_cm is None:
-            self.user_input_cm = float(input("Enter the length in centimeters: "))
-            if self.user_input_cm is float:
-                break
-            else:
-                continue
-         
         self.canvas.unbind("<Button-1>")
         self.canvas.bind("<Button-1>", self.on_click)
-    
-        
-    def set_conversionx(self):
-        print("Confirmed line for ratio of pixels per centimeter")
-        # Calculate the ratio of pixels per centimeter
-        self.ratioLength = self.pixel_length / self.user_input_cm
-        print(f"Ratio: {self.ratioLength:.2f} pixels/cm")
-        
 
-        # Display the ratio on the side
-        self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+    def set_conversion(self):
+        user_input_cm = self.cm_entry.get()
+        try:
+            user_input_cm = float(user_input_cm)
+            self.ratioLength = self.pixel_length / user_input_cm
+            self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number for centimeters.")
 
     def pixel_to_cm(self):
         print("THIS IS MY CONVERSION BUTTON")
-        #self.ratio_x = pixels_x/cm_x
-        #self.ratio_y = pixels_y/cm_y
-
-        #button to start conversion if measured_x and measured y is taken
-        
-        
+        # You can implement your conversion logic here
 
 if __name__ == "__main__":
     app = App()
