@@ -18,6 +18,9 @@ class App(tk.Tk):
 
         self.pixel_length = 0
         self.ratioLength = 0
+        self.ratioAxis = 0
+        self.ratioX = 0 
+        self.ratioY = 0
 
         # Create and add the button to upload the image
         self.upload_button = tk.Button(self, text="Locate Image", command=self.image_uploader)
@@ -84,8 +87,16 @@ class App(tk.Tk):
             self.canvas.create_line(x1, y1, x2, y2, fill="red")
             self.pixel_length = self.calculate_pixel_length(x1, y1, x2, y2)
             print(f"Pixel Length: {self.pixel_length}")
+            print("Pixel Coordinates, x1: ", x1, "x2: ", x2, "y1: ", y1, "y2: ", y2)
+ 
+            if (x1 - x2) ** 2 < 100:
+                self.ratioAxis = "Y"
+            else:
+                self.ratioAxis = "X"
+            print(f"Pixel Length: {self.pixel_length} Axis: {self.ratioAxis}")
 
             self.points = []
+            return self.ratioAxis
 
     def calculate_pixel_length(self, x1, y1, x2, y2):
             print("Before Swapping, x1: ", x1, "x2: ", x2, "y1: ", y1, "y2: ", y2)
@@ -100,7 +111,7 @@ class App(tk.Tk):
             else:
                 pass
             print("After Swapping, x1: ", x1, "x2: ", x2, "y1: ", y1, "y2: ", y2)
-
+            
             pixel_length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
             return pixel_length
             
@@ -117,17 +128,28 @@ class App(tk.Tk):
          
         self.canvas.unbind("<Button-1>")
         self.canvas.bind("<Button-1>", self.on_click)
+
+#Create button for new measurements
+    def find_pixel(self):
+        
+        self.canvas.unbind("<Button-1>")
+        self.canvas.bind("<Button-1>", self.on_click)
     
         
     def set_conversionx(self):
         print("Confirmed line for ratio of pixels per centimeter")
         # Calculate the ratio of pixels per centimeter
-        self.ratioLength = self.pixel_length / self.user_input_cm
-        print(f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        # Determine if the line is X or Y measurement and assign ratio appropriately
+        if self.ratioAxis == "Y":
+            self.ratioY = self.pixel_length / self.user_input_cm
+            print(f"Y Ratio: {self.ratioY:.2f} pixels/cm")
+        else:
+            self.ratioX = self.pixel_length / self.user_input_cm
+            print(f"X Ratio: {self.ratioX:.2f} pixels/cm")
         
 
         # Display the ratio on the side
-        self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        #self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
 
     def pixel_to_cm(self):
         print("THIS IS MY CONVERSION BUTTON")
