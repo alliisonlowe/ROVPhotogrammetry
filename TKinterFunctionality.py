@@ -143,6 +143,8 @@ class App(tk.Tk):
             coralX = self.pixel_length / self.ratioAxis[0]
             print(f"X Measurement: {coralX} cm")
 
+=======
+>>>>>>> main
 if __name__ == "__main__":
     app = App()
     app.mainloop()
