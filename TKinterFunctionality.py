@@ -1,79 +1,148 @@
 import tkinter as tk
-from tkinter import Label
-from tkinter import filedialog
-from tkinter import *
-from PIL import Image,ImageTk
+from tkinter import filedialog, messagebox
+from PIL import Image, ImageTk
+import math
 
-## Function for Uploading Images
+class App(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+        # Application Setup
+        self.title("LBCC Photogrammetry Software")
+        self.geometry("1280x960")
+        self.configure(bg="#333333")
 
-def imageUploader():
-    fileTypes = [("Image Files", "*.png;*.jpg;*.jpeg")]
-    path = tk.filedialog.askopenfilename(filetypes = fileTypes)
-    global pic
+        # Create and add the label to display the image
+        self.width, self.height = 1280, 960
+        self.canvas = tk.Canvas(self, width=self.width, height=self.height)
+        self.canvas.grid(row=0, column=0, rowspan= 1, columnspan=1, sticky=tk.NE)
 
-    if len(path):
-        img = Image.open(path)
-        ## Automatically sizes the dimensions of the image when uploading sono scaling issues
-        width,height = img.size
-        img = img.resize((width,height))
-        pic = ImageTk.PhotoImage(img)
+        self.pixel_length = 0
+        self.ratioLength = 0
 
+        # Create and add the button to upload the image
+        self.upload_button = tk.Button(self, text="Locate Image", command=self.image_uploader)
+        self.upload_button.grid(row=1, column=0, pady=20)
+
+        # Create and add the button to set scale for conversion
+        self.scale_button = tk.Button(self, text="Create Scale", command=self.set_conversion)
+        self.scale_button.grid(row=1, column=2, pady=30, padx=10)
+
+        # Create and add the button to measure coral reef in pixels to convert to cm
+        self.convert_button = tk.Button(self, text="Measure Coral Reef", command=self.pixel_to_cm)
+        self.convert_button.grid(row=2, column=2, pady=40, padx=10)
+
+        # Create ratio text display on the top left corner
+        self.ratio_label = tk.Label(self, text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        self.ratio_label.grid(row=0, column=2, padx=10, pady=20)
+
+        # Entry widget for user input of length in centimeters
+        self.cm_entry = tk.Entry(self)
+        self.cm_entry.grid(row=1, column=3, padx=10, pady=20)
+
+        # Add a row and column configuration for the grid
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        # Creating Points for Drawing a line
+        self.points = []
+        self.canvas.bind("<Button-1>", self.on_click_disabled)
+
+        # Defining if an Axis is X or Y, Set Axis
+        self.axis = ""
+        self.ratioAxis = [0, 0]
+
+    def image_uploader(self):
+        file_types = [("Image Files", "*.png;*.jpg;*.jpeg")]
+        path = filedialog.askopenfilename(filetypes=file_types)
+
+        if len(path):
+            self.img = Image.open(path)
+
+            # Define maximum width and height for display
+            max_width = 1200
+            max_height = 600
+
+            # Calculate scaling factor based on maximum dimensions
+            width_ratio = max_width / self.img.width
+            height_ratio = max_height / self.img.height
+            scaling_factor = min(width_ratio, height_ratio)
+
+            # Resize the image
+            new_width = int(self.img.width * scaling_factor)
+            new_height = int(self.img.height * scaling_factor)
+            self.img = self.img.resize((new_width, new_height))
+            self.pic = ImageTk.PhotoImage(self.img)
+
+            # Clear previous image, if any
+            self.canvas.delete("image")
+
+            # Display the resized image on the canvas
+            self.canvas.create_image(0, 0, image=self.pic, anchor="nw", tag="image")
+            self.canvas.config(width=new_width, height=new_height)
+
+    def on_click_disabled(self, event):
+        pass
+
+    def on_click(self, event):
+        self.points.append((event.x, event.y))
+
+        if len(self.points) == 2:
+            x1, y1 = self.points[0]
+            x2, y2 = self.points[1]
+
+            self.canvas.create_line(x1, y1, x2, y2, fill="red")
+            self.pixel_length = self.calculate_pixel_length(x1, y1, x2, y2)
+            print(f"Pixel Length: {self.pixel_length}")
+
+            if (x1 - x2) ** 2 < 75:
+                self.axis = "Y"
+            else:
+                self.axis = "X"
+
+            print(f"Axis: {self.axis}")
+            self.points = []
+            return self.axis
+
+    def calculate_pixel_length(self, x1, y1, x2, y2):
+        pixel_length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        return pixel_length
+
+    def find_pixel(self):
+        self.canvas.unbind("<Button-1>")
+        self.canvas.bind("<Button-1>", self.on_click)
+
+    def set_conversion(self):
+        user_input_cm = self.cm_entry.get()
+        try:
+            user_input_cm = float(user_input_cm)
+            if self.axis == "Y":
+                self.ratioY = self.pixel_length / user_input_cm
+                self.ratio_label.config(text=f"{self.axis} Ratio: {self.ratioY:.2f} pixels/cm")
+                self.ratioAxis[1] = self.ratioY
+            else:
+                self.ratioX = self.pixel_length / user_input_cm
+                self.ratio_label.config(text=f"{self.axis} Ratio: {self.ratioX:.2f} pixels/cm")
+                self.ratioAxis[0] = self.ratioX
+            #self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+            self.canvas.unbind("<Button-1>")
+            self.canvas.bind("<Button-1>", self.on_click)
+            print(f"{self.ratioAxis}")
+            return self.ratioAxis
         
-        canvas.create_image(width/2, height/2, image=pic, anchor="center")
-            
-    else:
-        print("No file chose. Please select a file.")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number for centimeters.")
 
-   
-    # # Function for drawing line between two points
-    # click_num = 0
-    # def drawLine(event):
-    #     global click_num
-    #     global x1, y1
-    #     global x2, y2
-
-    #     if click_num==0:
-    #         x1=event.x
-    #         y1=event.y
-    #         click_num=1
-    #     else:
-    #         x2=event.x
-    #         y2=event.y   
-    # app.create_line(x1,y1,x2,y2, fill="green", width=5)  
-    # canvas.bind('<Button-1>', drawLine)
+    def pixel_to_cm(self):
+        print("THIS IS MY CONVERSION BUTTON")
+        # You can implement your conversion logic here
+        # Determine if the line is X or Y measurement and assign ratio appropriately
+        if self.axis == "Y":
+            coralY = self.pixel_length / self.ratioAxis[1]
+            print(f"Y Measurement: {coralY} cm")
+        else:
+            coralX = self.pixel_length / self.ratioAxis[0]
+            print(f"X Measurement: {coralX} cm")
 
 if __name__ == "__main__":
-
-    app = tk.Tk()
-    app.title("LBCC ROV Photo Software")
-    app.geometry("1280x960")
-    app.configure(bg="#333333")
-
-    app.option_add("*Label*Background","white")
-    app.option_add("*Button*Background","lightgreen")
-
-    uploadButton = tk.Button(app, text="Locate Image", command=imageUploader)
-    uploadButton.pack(side=tk.BOTTOM)
-
-    # drawButton =tk.Button(app, text="Mark Points", command=drawLine)
-    # drawButton.pack(side=tk.BOTTOM)
-
-
-
-    canvas = Canvas(app, width=1280, height=960)
-    canvas.pack()
-    click_num=0
-
-
-
-    def paint( event ):
-        x1, y1 = ( event.x - 1 ), ( event.y - 1 )
-        x2, y2 = ( event.x + 1 ), ( event.y + 1 )
-        canvas.create_oval( x1, y1, x2, y2, fill = "black" )
-    canvas.bind( "<B1-Motion>", paint )
-
-        
-
+    app = App()
     app.mainloop()
-
-
