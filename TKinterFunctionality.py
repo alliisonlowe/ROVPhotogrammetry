@@ -130,10 +130,10 @@ class App(tk.Tk):
         self.canvas.bind("<Button-1>", self.on_click)
 
 #Create button for new measurements
-    def find_pixel(self):
+    #def find_pixel(self):
         
-        self.canvas.unbind("<Button-1>")
-        self.canvas.bind("<Button-1>", self.on_click)
+        # self.canvas.unbind("<Button-1>")
+        # self.canvas.bind("<Button-1>", self.on_click)
     
         
     def set_conversionx(self):
