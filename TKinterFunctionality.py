@@ -50,6 +50,8 @@ class App(tk.Tk):
         # Defining if an Axis is X or Y, Set Axis
         self.axis = ""
         self.ratioAxis = [0, 0]
+        self.yLengths = []
+        self.xLengths = []
 
     def image_uploader(self):
         file_types = [("Image Files", "*.png;*.jpg;*.jpeg")]
@@ -94,7 +96,7 @@ class App(tk.Tk):
             self.pixel_length = self.calculate_pixel_length(x1, y1, x2, y2)
             print(f"Pixel Length: {self.pixel_length}")
 
-            if (x1 - x2) ** 2 < 75:
+            if (x1 - x2) ** 2 < (y1 - y2) ** 2:
                 self.axis = "Y"
             else:
                 self.axis = "X"
@@ -133,15 +135,17 @@ class App(tk.Tk):
             messagebox.showerror("Error", "Please enter a valid number for centimeters.")
 
     def pixel_to_cm(self):
-        print("THIS IS MY CONVERSION BUTTON")
         # You can implement your conversion logic here
         # Determine if the line is X or Y measurement and assign ratio appropriately
         if self.axis == "Y":
             coralY = self.pixel_length / self.ratioAxis[1]
-            print(f"Y Measurement: {coralY} cm")
+            self.yLengths.append(coralY)
+            print(f"Y Measurement: {coralY} cm \n All Y Measurements: {self.yLengths}")
         else:
             coralX = self.pixel_length / self.ratioAxis[0]
             print(f"X Measurement: {coralX} cm")
+            self.yLengths.append(coralX)
+            print(f"Y Measurement: {coralX} cm \n All Y Measurements: {self.xLengths}")
 
 if __name__ == "__main__":
     app = App()
