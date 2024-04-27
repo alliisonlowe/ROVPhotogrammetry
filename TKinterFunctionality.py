@@ -19,6 +19,15 @@ class App(tk.Tk):
         self.pixel_length = 0
         self.ratioLength = 0
 
+        # Defining if an Axis is X or Y, Set Axis
+        self.axis = ""
+        self.ratioAxis = [0,0]
+        self.ratioX = 0 
+        self.ratioY = 0
+        self.yLengths = []
+        self.xLengths = []
+
+
         # Create and add the button to upload the image
         self.upload_button = tk.Button(self, text="Locate Image", command=self.image_uploader)
         self.upload_button.grid(row=1, column=0, pady=20)
@@ -31,13 +40,17 @@ class App(tk.Tk):
         self.convert_button = tk.Button(self, text="Measure Coral Reef", command=self.pixel_to_cm)
         self.convert_button.grid(row=2, column=2, pady=40, padx=10)
 
-        # Create ratio text display on the top left corner
-        self.ratio_label = tk.Label(self, text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
+        # Create ratio text display on the right
+        self.ratio_label = tk.Label(self, text=f" X Ratio: {self.ratioX:.2f} pixels/cm \n Y Ratio: {self.ratioY:.2f} pixels/cm ")
         self.ratio_label.grid(row=0, column=2, padx=10, pady=20)
 
         # Entry widget for user input of length in centimeters
         self.cm_entry = tk.Entry(self)
         self.cm_entry.grid(row=1, column=3, padx=10, pady=20)
+
+        # Create Coral Measurement text display on the right
+        self.coral_label = tk.Label(self, text=f"All X Measurements: {self.xLengths} \n All Y Measurements: {self.yLengths}")
+        self.coral_label.grid(row=2, column=3, padx=10, pady=20)
 
         # Add a row and column configuration for the grid
         self.rowconfigure(0, weight=1)
@@ -47,11 +60,6 @@ class App(tk.Tk):
         self.points = []
         self.canvas.bind("<Button-1>", self.on_click_disabled)
 
-        # Defining if an Axis is X or Y, Set Axis
-        self.axis = ""
-        self.ratioAxis = [0, 0]
-        self.yLengths = []
-        self.xLengths = []
 
     def image_uploader(self):
         file_types = [("Image Files", "*.png;*.jpg;*.jpeg")]
@@ -119,11 +127,11 @@ class App(tk.Tk):
             user_input_cm = float(user_input_cm)
             if self.axis == "Y":
                 self.ratioY = self.pixel_length / user_input_cm
-                self.ratio_label.config(text=f"{self.axis} Ratio: {self.ratioY:.2f} pixels/cm")
+                self.ratio_label.config(text=f" X Ratio: {self.ratioX:.2f} pixels/cm \n Y Ratio: {self.ratioY:.2f} pixels/cm")
                 self.ratioAxis[1] = self.ratioY
             else:
                 self.ratioX = self.pixel_length / user_input_cm
-                self.ratio_label.config(text=f"{self.axis} Ratio: {self.ratioX:.2f} pixels/cm")
+                self.ratio_label.config(text=f" X Ratio: {self.ratioX:.2f} pixels/cm \n Y Ratio: {self.ratioY:.2f} pixels/cm ")
                 self.ratioAxis[0] = self.ratioX
             #self.ratio_label.config(text=f"Ratio: {self.ratioLength:.2f} pixels/cm")
             self.canvas.unbind("<Button-1>")
@@ -136,16 +144,18 @@ class App(tk.Tk):
 
     def pixel_to_cm(self):
         # You can implement your conversion logic here
-        # Determine if the line is X or Y measurement and assign ratio appropriately
+        # Determine if the line is X or Y measurement and assign line appropriately, round used to round the number to 2 decimal points
         if self.axis == "Y":
-            coralY = self.pixel_length / self.ratioAxis[1]
+            coralY = round(self.pixel_length / self.ratioAxis[1], 2)
             self.yLengths.append(coralY)
             print(f"Y Measurement: {coralY} cm \n All Y Measurements: {self.yLengths}")
+            self.coral_label.config(text=f"All X Measurements: {self.xLengths} \n All Y Measurements: {self.yLengths}")
         else:
-            coralX = self.pixel_length / self.ratioAxis[0]
+            coralX = round(self.pixel_length / self.ratioAxis[0], 2)
             print(f"X Measurement: {coralX} cm")
-            self.yLengths.append(coralX)
-            print(f"Y Measurement: {coralX} cm \n All Y Measurements: {self.xLengths}")
+            self.xLengths.append(coralX)
+            print(f"X Measurement: {coralX} cm \n All X Measurements: {self.xLengths}")
+            self.coral_label.config(text=f"All X Measurements: {self.xLengths} \n All Y Measurements: {self.yLengths}")
 
 if __name__ == "__main__":
     app = App()
