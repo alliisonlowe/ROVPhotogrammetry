@@ -56,8 +56,9 @@ class App(tk.Tk):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        # Creating Points for Drawing a line
+        # Creating Points for Drawing a line, setting default color
         self.points = []
+        self.color = "red"
         self.canvas.bind("<Button-1>", self.on_click_disabled)
 
 
@@ -100,7 +101,7 @@ class App(tk.Tk):
             x1, y1 = self.points[0]
             x2, y2 = self.points[1]
 
-            self.canvas.create_line(x1, y1, x2, y2, fill="red")
+            self.canvas.create_line(x1, y1, x2, y2, fill=self.color)
             self.pixel_length = self.calculate_pixel_length(x1, y1, x2, y2)
             print(f"Pixel Length: {self.pixel_length}")
 
