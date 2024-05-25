@@ -12,9 +12,9 @@ class App(tk.Tk):
         self.configure(bg="#333333")
 
         # Create and add the label to display the image
-        self.width, self.height = 1280, 960
+        self.width, self.height = 1280, 480
         self.canvas = tk.Canvas(self, width=self.width, height=self.height)
-        self.canvas.grid(row=0, column=0, rowspan= 8, columnspan=1, sticky=tk.NE)
+        self.canvas.grid(row=0, column=0, rowspan= 8, columnspan= 1, sticky=tk.NE)
 
         self.pixel_length = 0
         self.ratioLength = 0
@@ -30,7 +30,7 @@ class App(tk.Tk):
 
         # Create and add the button to upload the image
         self.upload_button = tk.Button(self, text="Locate Image", command=self.image_uploader)
-        self.upload_button.grid(row=1, column=0, pady=20)
+        self.upload_button.grid(row=2, column=0, pady=10)
 
         # Create and add the button to set scale for conversion
         self.scale_button = tk.Button(self, text="Create Scale", command=self.set_conversion)
@@ -60,9 +60,10 @@ class App(tk.Tk):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        # Creating Points for Drawing a line, setting default color
+        # Creating Points for Drawing a line, setting default color, last coordinate of newest line drawn
         self.points = []
         self.color = "red"
+        self.label_points = []
         self.canvas.bind("<Button-1>", self.on_click_disabled)
 
 
@@ -115,8 +116,10 @@ class App(tk.Tk):
                 self.axis = "X"
 
             print(f"Axis: {self.axis}")
+            self.label_points = self.points[1]
+            print(self.label_points)
             self.points = []
-            return self.axis
+            return self.axis, self.label_points
 
     def calculate_pixel_length(self, x1, y1, x2, y2):
         pixel_length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -155,14 +158,20 @@ class App(tk.Tk):
 
 # You can implement your conversion logic here
 # Determines if the line is X or Y measurement and assign line appropriately, round used to round the number to 2 decimal points
+# Creates label correlating to what number measurement is being converted
     def pixel_to_cm(self):
+        self.color = "blue"
+
         try:
-            self.color = "blue"
             if self.axis == "Y":
                 coralY = round(self.pixel_length / self.ratioAxis[1], 2)
                 self.yLengths.append(coralY)
                 print(f"Y Measurement: {coralY} cm \n All Y Measurements: {self.yLengths}")
                 self.coral_label.config(text=f"All X Measurements (cm): {self.xLengths} \n All Y Measurements (cm): {self.yLengths}")
+                self.label_coral = tk.Label(self, text = len(self.yLengths) )
+                self.label_coral.place( relx = self.label_points[0], rely = self.label_points[1], anchor ='center')
+              
+              
             else:
                 coralX = round(self.pixel_length / self.ratioAxis[0], 2)
                 print(f"X Measurement: {coralX} cm")
