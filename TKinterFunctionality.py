@@ -38,7 +38,7 @@ class App(tk.Tk):
 
         # Create and add the button to measure coral reef in pixels to convert to cm
         self.convert_button = tk.Button(self, text="Measure Coral Reef", command=self.pixel_to_cm)
-        self.convert_button.grid(row=2, column=2, pady=40, padx=10)
+        self.convert_button.grid(row=2, column=3, pady=40, padx=10)
 
         # Create ratio text display on the right
         self.ratio_label = tk.Label(self, text=f" X Ratio: {self.ratioX:.2f} pixels/cm \n Y Ratio: {self.ratioY:.2f} pixels/cm ")
@@ -48,9 +48,13 @@ class App(tk.Tk):
         self.cm_entry = tk.Entry(self)
         self.cm_entry.grid(row=1, column=3, padx=10, pady=20)
 
-        # Create Coral Measurement text display on the right
+        # Create Display for Coral Measurement text on the right
         self.coral_label = tk.Label(self, text=f"All X Measurements: {self.xLengths} \n All Y Measurements: {self.yLengths}")
-        self.coral_label.grid(row=2, column=3, padx=10, pady=20)
+        self.coral_label.grid(row=2, column=4, padx=10, pady=20)
+
+        # Create button for coral line measurement
+        self.coral_button = tk.Button(self, text="Create Coral Reef Line", command=self.coral_line)
+        self.coral_button.grid(row=2, column=2, pady=10, padx=20)
 
         # Add a row and column configuration for the grid
         self.rowconfigure(0, weight=1)
@@ -143,9 +147,13 @@ class App(tk.Tk):
         except ValueError:
             messagebox.showerror("Error", "Please enter a valid number for centimeters.")
 
+    # Sets line to blue for coral reef measurements
+    def coral_line(self):
+        self.color = "blue"
+
+    # You can implement your conversion logic here
+    # Determine if the line is X or Y measurement and assign line appropriately, round used to round the number to 2 decimal points
     def pixel_to_cm(self):
-        # You can implement your conversion logic here
-        # Determine if the line is X or Y measurement and assign line appropriately, round used to round the number to 2 decimal points
         if self.axis == "Y":
             coralY = round(self.pixel_length / self.ratioAxis[1], 2)
             self.yLengths.append(coralY)
